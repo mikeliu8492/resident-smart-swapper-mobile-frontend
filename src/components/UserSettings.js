@@ -5,6 +5,8 @@ import {Button, Card, CardSection, CustomPicker, Header, Input, Spinner} from '.
 import firebase from 'firebase';
 import axios from 'axios';
 
+import {Actions} from 'react-native-router-flux';
+
 export default class UserSettings extends Component {
 
   state = {
@@ -16,42 +18,8 @@ export default class UserSettings extends Component {
     loading: false
   }
 
-  componentWillMount() {
-    /*
-    if(firebase.auth().currentUser !== null)
-    {
-      firebase.auth().currentUser.getIdToken(false)
-      .then(token => {
-        console.log(`TOKEN IS:  ${token}`)
-        console.log(firebase.auth().currentUser.email)
-        const AuthStr = 'Bearer '.concat(token); 
-        return axios.get("https://resident-smart-swapper.herokuapp.com/verify_id_token", { headers: { Authorization: AuthStr } })
-      })
-      .then(response => {
-        // If request is good...
-        const loggedInUser = response.data.user;
-        this.setState({
-            firstName: loggedInUser.first_name,
-            lastName: loggedInUser.last_name,
-            year: loggedInUser.year,
-            program: loggedInUser.program,
-            email: loggedInUser.email
-        })
-
-        console.log(response.data);
-      })
-      .catch(err => {
-        console.log(err.toString())
-      })
-    }
-    else {
-      console.log("You should not be here!")
-    }
-    */
-  }
-
-  tryRegister () {
-
+  tryChangeSettings () {
+    Actions.pop();
   }
 
   renderButton() {
@@ -60,8 +28,8 @@ export default class UserSettings extends Component {
     }
 
     return(
-      <Button onPress={this.tryRegister.bind(this)}>
-        Register
+      <Button onPress={this.tryChangeSettings.bind(this)}>
+        Save Settings
       </Button>
     )
   }

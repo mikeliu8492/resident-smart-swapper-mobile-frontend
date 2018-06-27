@@ -11,6 +11,9 @@ import * as actions from '../actions';
 import firebase from 'firebase';
 import axios from 'axios';
 
+// Import Router Tools
+import {Actions} from 'react-native-router-flux'
+
 //Import environmental variables
 import { 
   FIREBASE_API_KEY, 
@@ -29,20 +32,6 @@ class LoginForm extends Component {
     error: "",
     loading: false
   }
-
-  componentWillMount() {
-    const config = {
-      apiKey: FIREBASE_API_KEY,
-      authDomain: FIREBASE_AUTH_DOMAIN,
-      databaseURL: FIREBASE_DB_URL,
-      projectId: FIREBASE_PROJECT_ID,
-      storageBucket: FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: FIREBASE_MESSAGING_SENDER_ID
-    };
-
-    firebase.initializeApp(config);
-  }
-
 
   tryLogin () {
     this.setState({error: "", loading: true})
@@ -72,18 +61,15 @@ class LoginForm extends Component {
       loading: false,
       error: ""
     });
-
-
-    
-    this.props.navigation.navigate('Home')
+    Actions.main();
   }
 
   redirectToRegister() {
-    this.props.navigation.navigate('Registration')
+    Actions.Register();
   }
 
   passwordForget() {
-    this.props.navigation.navigate('PasswordReset')
+    Actions.ResetPassword();
   }
 
   renderButton() {
@@ -103,8 +89,6 @@ class LoginForm extends Component {
     console.log(this.props.currentLoggedUser)
     return (
       <Card>
-        <Header headerText="Please Sign In"/>
-        
         <CardSection>
           <Input
             placeholder="user@gmail.com"

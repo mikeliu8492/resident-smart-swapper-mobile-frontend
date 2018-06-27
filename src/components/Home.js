@@ -8,6 +8,7 @@ import firebase from 'firebase';
 import {connect} from 'react-redux';
 import * as actions from '../actions';
 
+import {Actions} from 'react-native-router-flux';
 
 
 class Home extends React.Component {
@@ -26,7 +27,7 @@ class Home extends React.Component {
       this.props.setCurrentUser(null)
       if(firebase.auth().currentUser === null){
         console.log("LOGOUT CONFIRMED!!!!!")
-        this.props.navigation.navigate('Login')
+        Actions.auth()
       }
       else {
         console.log("ERROR!!!!!")
@@ -62,25 +63,24 @@ class Home extends React.Component {
 
     return (
       <View>
-        <Header headerText="Homepage of App"/>
         <Card>
           <CardSection>
-            <Button onPress={() => navigate('Calendar')}>
+            <Button onPress={() => Actions.calendar()}>
               Calendar
             </Button>
           </CardSection>
           <CardSection>
-            <Button onPress={() => navigate('Inbox')}>
+            <Button onPress={() => Actions.Inbox()}>
               Inbox
             </Button>
           </CardSection>
           <CardSection>
-            <Button onPress={() => navigate('Swift')}>
+            <Button onPress={() => Actions.Outbox()}>
               Outgoing Requests
             </Button>
           </CardSection>
           <CardSection>
-            <Button onPress={() => navigate('UserSettings')}>
+            <Button onPress={() => Actions.UserSettings()}>
               Settings
             </Button>
           </CardSection>
