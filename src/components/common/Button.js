@@ -18,12 +18,12 @@ const styles = {
         backgroundColor: '#fff',
         borderRadius: 5,
         borderWidth: 1,
-        borderColor: '#007aff',
+        borderColor: '#00008b',
         marginHorizontal: 5
     },
     textStyle: {
         alignSelf: 'center',
-        color: '#007aff',
+        color: '#00008b',
         fontSize: 16,
         fontWeight: '600',
         paddingVertical: 10,

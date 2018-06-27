@@ -2,12 +2,15 @@ import React, {Component} from 'react';
 import {Text, Picker, ScrollView} from 'react-native';
 import {Button, Card, CardSection, CustomPicker, Header, Input, Spinner} from './common'
 
+import {Actions} from 'react-native-router-flux'
+
 import firebase from 'firebase';
 import axios from 'axios';
 
 // Redux Services
 import {connect} from 'react-redux';
 import * as actions from '../actions';
+
 
 class RegistrationForm extends Component {
 
@@ -35,16 +38,7 @@ class RegistrationForm extends Component {
     }
 
     axios.post("https://resident-smart-swapper.herokuapp.com/user", dbPayloadBody)
-    .then(response => {
-      if(response.request.status !== 201)
-      {
-        if(response.request.status === 422){
-          this.setState({error:  "One or more fields is invalid"})
-        }
-
-        throw new Error("An error has occured")
-      }
-      
+    .then(() => {
       return firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
     })
     .then(() => {
@@ -56,10 +50,11 @@ class RegistrationForm extends Component {
     })
     .then(response => {
       this.props.setCurrentUser(response.data.user)
-      this.props.navigation.navigate("Home")
+      Actions.main()
     })
     .catch(err => {
-      console.log(err.toString())
+      console.log(err)
+      this.setState({error:  "One or more fields are invalid.  Password must be at least 6 characters."})
     })
   }
 
@@ -146,12 +141,14 @@ class RegistrationForm extends Component {
             </Picker>
           </CardSection>
 
-
+          <CardSection>
+            <Text style={styles.errorTextStyle}>
+              {this.state.error}
+            </Text>
+          </CardSection>
 
           
-          <Text style={styles.errorTextStyle}>
-            {this.state.error}
-          </Text>
+
 
           <CardSection>
             {this.renderButton()}

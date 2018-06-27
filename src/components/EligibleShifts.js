@@ -21,13 +21,9 @@ export default class Calendar extends React.Component {
     Actions.main()
   }
 
-  renderContinueButton() {
-    if(this.props.targetSelf === true) {
-      return <Button onPress={() => Actions.Calendar({title: "Other Residents' Shifts", targetSelf: false})}>View Other Resident's Shifts!</Button>
-    }
-    else {
-      return <Button onPress={() => Actions.EligibleShifts()}>See your eligible swap!</Button>
-    }
+  submitTradeRequest() {
+      console.log("I SUBMITTED TRADE REQUEST!!!!!")
+      this.goHome()
   }
 
   render() {
@@ -37,10 +33,10 @@ export default class Calendar extends React.Component {
             <Button onPress={this.goHome.bind(this)}>Go Home!</Button>
           </CardSection>
           <CardSection>
-            {this.renderContinueButton()}
+            <Button onPress={this.submitTradeRequest.bind(this)}>Submit Trade Request!</Button>
           </CardSection>
           <CardSection>
-            <Text>I am the calendar!  I am the user's own:  {this.props.targetSelf.toString()}</Text>
+            <Text>I am the eligible shift to swap page!!!!</Text>
           </CardSection>
           
       </View>
