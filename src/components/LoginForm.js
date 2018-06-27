@@ -37,9 +37,11 @@ class LoginForm extends Component {
     this.setState({error: "", loading: true})
 
     const {email, password} = this.state
+
     firebase.auth().signInWithEmailAndPassword(email, password)
     .then(() => {
       return firebase.auth().currentUser.getIdToken(false)
+      this.props.setCurrentUser()
     })
     .then(ID_TOKEN => {
       const AuthStr = 'Bearer '.concat(ID_TOKEN); 
