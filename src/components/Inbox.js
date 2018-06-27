@@ -20,14 +20,10 @@ class Inbox extends React.Component{
         shiftList: []
     }
     componentWillMount() {
-        if(!this.props.userIsPresent) {
-            return
-        }
-        
-        const currentLoggedUser = this.props.currentLoggedUser
+        const currentLoggedUser = this.props.currentLoggedUser.userInfo
 
         //Get the user program too
-        axios.get(`https://resident-smart-swapper.herokuapp.com/program/${this.props.currentLoggedUser.program}`)
+        axios.get(`https://resident-smart-swapper.herokuapp.com/program/${currentLoggedUser.program}`)
         .then(response => {
             const program = response.data.program
             this.setState({
@@ -84,11 +80,7 @@ class Inbox extends React.Component{
     }
 
     render() {
-        if(!this.props.userIsPresent) {
-            return <Text>You shouldn't be here.</Text>
-        }
-
-        const currentLoggedUser = this.props.currentLoggedUser
+        const currentLoggedUser = this.props.currentLoggedUser.userInfo
 
         return(
             <View style={{flex: 1}}>

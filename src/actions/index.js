@@ -1,3 +1,5 @@
+import {SET_CURRENT_LOGGED_USER, CLEAR_CURRENT_USER} from './types'
+
 export const selectLibrary = (libraryId) => {
     return {
         type: "select_library",
@@ -5,9 +7,17 @@ export const selectLibrary = (libraryId) => {
     }
 }
 
+// USER ACTIONS
+
 export const setCurrentUser = (userObject) => {
     return {
-        type: "set_current_logged_user",
+        type: SET_CURRENT_LOGGED_USER,
         payload: userObject
+    }
+}
+
+export const clearCurrentUser = () => {
+    return {
+        type: CLEAR_CURRENT_USER
     }
 }
