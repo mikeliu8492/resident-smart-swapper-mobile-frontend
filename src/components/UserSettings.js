@@ -1,24 +1,65 @@
 import React, {Component} from 'react';
 import {Text, Picker, ScrollView} from 'react-native';
-import {Button, Card, CardSection, CustomPicker, Header, Input, Spinner} from './common'
+import {Button, Card, CardSection, CustomPicker, Confirm, Input, Spinner} from './common'
 
-import firebase from 'firebase';
 import axios from 'axios';
 
+// Redux Import
 import {Actions} from 'react-native-router-flux';
+import {connect} from 'react-redux';
+import {timezoneUpdate} from  '../actions/';
 
-export default class UserSettings extends Component {
+// Timezone Constants
+import {PT, MT, CT, ET} from '../utility/Constants'
+
+// User Friendly Constants
+const PT_STRING = "Pacific Time"
+const MT_STRING = "Mountain Time"
+const CT_STRING = "Central Time"
+const ET_STRING = "Eastern Time"
+
+class UserSettings extends Component {
 
   state = {
     firstName: "",
     lastName: "",
-    program: "5aad778b5510ca04d47dc965",
-    year: 1,
+    timezone: "",
+    tzString: "",
     error: "",
-    loading: false
+    loading: false,
+    confirmVisible: false
+  }
+
+  componentWillMount() {
+    this.setState({
+      timezone: this.props.timezone,
+      firstName: this.props.currentLoggedUser.userInfo.first_name,
+      lastName: this.props.currentLoggedUser.userInfo.last_name
+    })
+
+    this.setTzString(this.state.timezone)
+  }
+
+  setTzString(enumValue) {
+    console.log(`Enum value is: ${enumValue}`)
+    console.log(`CENTRAL IS:  ${CT}`)
+    switch(enumValue) {
+      case PT:
+        this.setState({tzString: PT_STRING})
+        break;
+      case MT:
+        this.setState({tzString: MT_STRING})
+        break;
+      case CT:
+        this.setState({tzString: CT_STRING})
+        break;
+      default:
+        this.setState({tzString: ET_STRING})
+    }
   }
 
   tryChangeSettings () {
+    this.props.timezoneUpdate(this.state.timezone)
     Actions.pop();
   }
 
@@ -28,9 +69,21 @@ export default class UserSettings extends Component {
     }
 
     return(
-      <Button onPress={this.tryChangeSettings.bind(this)}>
+      <Button onPress={() => {this.setState({confirmVisible: true})}}>
         Save Settings
       </Button>
+    )
+  }
+
+  renderConfirmModal () {
+    return(
+      <Confirm 
+        onAccept={this.tryChangeSettings.bind(this)} 
+        onDecline={() => this.setState({confirmVisible: false})} 
+        visible={this.state.confirmVisible} 
+      >
+        <Text>Save the following settings? Timezone:  {this.state.tzString}</Text>
+      </Confirm>
     )
   }
 
@@ -38,9 +91,8 @@ export default class UserSettings extends Component {
     console.log(this.state)
     return (
       <ScrollView>
+        {this.renderConfirmModal()}
         <Card>
-          <Header headerText="Modify User Settings"/>
-          
           <CardSection>
             <Input
               placeholder="John"
@@ -62,26 +114,19 @@ export default class UserSettings extends Component {
           </CardSection>
 
           <CardSection style={{flexDirection: 'row', alignItems: 'center',}}>
-            <Text style={styles.pickerTextStyle}> Program</Text>
+            <Text style={styles.pickerTextStyle}> Timezone</Text>
             <Picker
               style={styles.onePicker}
               itemStyle={styles.onePickerItem}
-              selectedValue={this.state.program}
-              onValueChange={(year) => this.setState({year: program})}>
-              <Picker.Item label="UMass EM" value = "5aad778b5510ca04d47dc965" />
-            </Picker>
-          </CardSection>
-
-          <CardSection style={{flexDirection: 'row', alignItems: 'center',}}>
-            <Text style={styles.pickerTextStyle}> Year</Text>
-            <Picker
-              style={styles.onePicker}
-              itemStyle={styles.onePickerItem}
-              selectedValue={this.state.year}
-              onValueChange={(year) => this.setState({year: year})}>
-              <Picker.Item label="PGY1" value = {1} />
-              <Picker.Item label="PGY2" value= {2} />
-              <Picker.Item label="PGY3" value= {3} />
+              selectedValue={this.state.timezone}
+              onValueChange={(timezone) => {
+                this.setState({timezone: timezone})
+                this.setTzString(timezone)
+              }}>
+              <Picker.Item label= {"Pacific Time"} value = {PT} />
+              <Picker.Item label= {"Mountain Time"} value= {MT} />
+              <Picker.Item label= {"Central Time"} value= {CT} />
+              <Picker.Item label= {"Eastern Time"} value= {ET} />
             </Picker>
           </CardSection>
       
@@ -95,8 +140,6 @@ export default class UserSettings extends Component {
 
         </Card>
       </ScrollView>
-      
-      
     );
   }
 }
@@ -124,35 +167,14 @@ const styles= {
   }
 }
 
+const mapStateToProps = (state) => { 
+  console.log("MAPPING STATE")
+  console.log(state.timezone)
+  return { 
+    timezone: state.timezone,
+    currentLoggedUser: state.currentLoggedUser 
+  };
+};
 
 
-    /*
-    const dbPayloadBody = {
-      first_name: this.state.firstName,
-      last_name: this.state.lastName,
-      year: this.state.year,
-      email: this.state.email,
-      program: this.state.program,
-      password: this.state.password
-    }
-
-    axios.post("https://resident-smart-swapper.herokuapp.com/user", dbPayloadBody)
-    .then(response => {
-      if(response.request.status !== 201)
-      {
-        if(response.request.status === 422){
-          this.setState({error:  "One or more fields is invalid"})
-        }
-
-        throw new Error("An error has occured")
-      }
-      
-      return firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
-    })
-    .then(response => {
-      this.props.navigation.navigate("Home")
-    })
-    .catch(err => {
-      console.log(err.toString())
-    })
-    */
+export default connect(mapStateToProps, {timezoneUpdate}) (UserSettings);

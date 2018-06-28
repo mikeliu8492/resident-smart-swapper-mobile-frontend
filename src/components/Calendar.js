@@ -88,18 +88,15 @@ class Calendar extends React.Component{
 
   //TODO:  Abstract function to different component
   renderShiftList() {
-      return this.state.shiftList.map(shift => 
-      {
-          const localStart = new Date(shift.start_shift)
-          const localEnd = new Date(shift.end_shift)
 
-          
+      const timezone = this.props.preferredTimezone
+
+      return this.state.shiftList.map(shift => {   
           let gmtDateTime = moment(shift.start_shift)
-          const formatStart = gmtDateTime.tz("America/New_York").format('MM/DD/YY h:mm a');
+          const formatStart = gmtDateTime.tz(timezone).format('MM/DD/YY h:mm a');
 
           gmtDateTime = moment(shift.end_shift)
-          const formatEnd = gmtDateTime.tz("America/New_York").format('MM/DD/YY h:mm a');
-
+          const formatEnd = gmtDateTime.tz(timezone).format('MM/DD/YY h:mm a');
 
           return(
               <CardSection key= {shift._id}>
@@ -109,10 +106,7 @@ class Calendar extends React.Component{
                   </View>
               </CardSection>
           )
-
-      }
-
-      )
+      })
   }
 
   renderNextPageConfirmModal() {
@@ -189,7 +183,8 @@ class Calendar extends React.Component{
 const mapStateToProps = (state) => {
   return {
       currentLoggedUser: state.currentLoggedUser,
-      userIsPresent: state.currentLoggedUser !== null
+      userIsPresent: state.currentLoggedUser !== null,
+      preferredTimezone: state.timezone
   }
 };
 

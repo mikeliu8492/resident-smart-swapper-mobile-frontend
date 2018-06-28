@@ -87,8 +87,8 @@ class LoginForm extends Component {
   }
 
   render() {
-    console.log("THIS IS THE START OF LOGIN RENDER")
-    console.log(this.props.currentLoggedUser)
+    //console.log("THIS IS THE START OF LOGIN RENDER")
+    //console.log(this.props.currentLoggedUser)
     return (
       <Card>
         <CardSection>
