@@ -25,7 +25,6 @@ class Home extends React.Component {
     .then(() => {
       this.props.clearCurrentUser()
       if(firebase.auth().currentUser === null){
-        console.log("LOGOUT CONFIRMED!!!!!")
         Actions.auth()
       }
       else {

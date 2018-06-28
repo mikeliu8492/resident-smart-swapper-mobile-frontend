@@ -1,4 +1,4 @@
-import {SET_CURRENT_LOGGED_USER} from '../actions/types'
+import {SET_CURRENT_LOGGED_USER, CLEAR_CURRENT_USER} from '../actions/types'
 
 const INITIAL_STATE = {
     userInfo: {
@@ -14,12 +14,14 @@ const INITIAL_STATE = {
 
 }
 
-export default (state, action) => {
+export default (state=INITIAL_STATE, action) => {
 
     switch (action.type){
         case SET_CURRENT_LOGGED_USER:
             return {userInfo: action.payload, loggedIn: true}
+        case CLEAR_CURRENT_USER:
+            return INITIAL_STATE
         default:
-            return INITIAL_STATE;
+            return state;
     }
 }
