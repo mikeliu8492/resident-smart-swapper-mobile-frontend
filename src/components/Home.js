@@ -49,7 +49,6 @@ class Home extends React.Component {
     )
   }
   render() {
-    const { navigate } = this.props.navigation;
 
     return (
       <View>

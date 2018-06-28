@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Text, View, ScrollView} from 'react-native';
-import {Button, Card, CardSection, Header, Input, Spinner} from './common'
+import {Button, Card, CardSection, Confirm} from './common'
 
 import axios from 'axios'
 
@@ -14,7 +14,9 @@ class Calendar extends React.Component{
   state = {
       programName: "",
       specialty: "",
-      shiftList: []
+      shiftList: [],
+      nextPageModalVisible: false,
+      goHomeModalVisible: false
   }
   componentWillMount() {
       const currentLoggedUser = this.props.currentLoggedUser.userInfo
@@ -49,19 +51,42 @@ class Calendar extends React.Component{
   }
 
   goHome() {
+    this.setState({goHomeModalVisible: false})
     Actions.main()
   }
 
   renderContinueButton() {
     if(this.props.targetSelf === true) {
-      return <Button onPress={() => Actions.Calendar({title: "Other Residents' Shifts", targetSelf: false})}>View Other Resident's Shifts!</Button>
+      return <Button onPress={this.renderNextModal.bind(this)}>View Other Resident's Shifts!</Button>
     }
     else {
-      return <Button onPress={() => Actions.EligibleShifts()}>See your eligible swap!</Button>
+      return <Button onPress={this.renderNextModal.bind(this)}>See your eligible swap!</Button>
     }
   }
 
 
+  renderNextModal () {
+    this.setState({nextPageModalVisible: true})
+  }
+
+  renderHomeModal() {
+    this.setState({goHomeModalVisible: true})
+  }
+
+  renderGoHomeConfirmModal() {
+    return(
+      <Confirm 
+        onAccept={this.goHome.bind(this)} 
+        onDecline={() => this.setState({goHomeModalVisible: false})} 
+        visible={this.state.goHomeModalVisible} 
+      >
+        WARNING:  This will exit you from the current process and clear all data in your request flow.  
+        Are you sure you want to go to the homepage?
+      </Confirm>
+    )
+  }
+
+  //TODO:  Abstract function to different component
   renderShiftList() {
       return this.state.shiftList.map(shift => 
       {
@@ -70,10 +95,10 @@ class Calendar extends React.Component{
 
           
           let gmtDateTime = moment(shift.start_shift)
-          const formatStart = gmtDateTime.local().format('MM/DD/YY h:mm a');
+          const formatStart = gmtDateTime.tz("America/New_York").format('MM/DD/YY h:mm a');
 
           gmtDateTime = moment(shift.end_shift)
-          const formatEnd = gmtDateTime.local().format('MM/DD/YY h:mm a');
+          const formatEnd = gmtDateTime.tz("America/New_York").format('MM/DD/YY h:mm a');
 
 
           return(
@@ -90,26 +115,67 @@ class Calendar extends React.Component{
       )
   }
 
+  renderNextPageConfirmModal() {
+    if(this.props.targetSelf === true) {
+      return(
+        <Confirm 
+          onAccept={this.nextCalendarPage.bind(this)} 
+          onDecline={() => this.setState({nextPageModalVisible: false})} 
+          visible={this.state.nextPageModalVisible} 
+        >
+          Confirm Your Chosen Shift to Swap
+        </Confirm>
+      )
+    }
+
+    return(
+      <Confirm 
+        onAccept={this.nextCalendarPage.bind(this)} 
+        onDecline={() => this.setState({nextPageModalVisible: false})} 
+        visible={this.state.nextPageModalVisible} 
+      >
+        Confirm Your Day Filter
+      </Confirm>
+    )
+  }
+
+  nextCalendarPage() {
+    if(this.props.targetSelf === true){
+      this.setState({nextPageModalVisible: false})
+      Actions.pop()
+      Actions.Calendar({title: "Other Residents' Shifts", targetSelf: false})
+    }
+    else {
+      this.setState({nextPageModalVisible: false})
+      Actions.pop()
+      Actions.EligibleShifts()
+    }
+  }
+
   render() {
       const currentLoggedUser = this.props.currentLoggedUser.userInfo
 
       return(
           <ScrollView style={{flex: 1}}>
+              
               <CardSection>
-                <Button onPress={this.goHome.bind(this)}>Go Home!</Button>
+                <Button onPress={this.renderHomeModal.bind(this)}>Go Home!</Button>
               </CardSection>
+              
               <CardSection>
                 {this.renderContinueButton()}
               </CardSection>
+              
               <CardSection>
                 <View style={{flex: 1}}>
                   <Text>Institution:  {this.state.programName}</Text>
                   <Text>Specialty:  {this.state.specialty}</Text>
                   <Text>PGY:  {currentLoggedUser.year}</Text>
                 </View>
-
               </CardSection>
-
+              {this.renderNextPageConfirmModal()}
+              {this.renderGoHomeConfirmModal()}
+              
               <Card>
                 {this.renderShiftList()}
               </Card>
