@@ -10,6 +10,7 @@ import UserSettings from '../components/UserSettings';
 import Inbox from '../components/Inbox';
 import Outbox from '../components/Outbox';
 import EligibleShifts from '../components/EligibleShifts'
+import ConfirmRequestSent from '../components/ConfirmRequestSent'
 
 
 import {Router, Scene} from 'react-native-router-flux';
@@ -24,10 +25,11 @@ const NavRouter = () => {
                     <Scene key="ResetPassword" component={PasswordResetForm} title="Reset Password"></Scene>
                 </Scene>
                 <Scene key="main">
-                    <Scene key="Home" component={Home} title="Home" initial></Scene>
+                    <Scene key="Home" component={Home} title="Main Menu" initial></Scene>
                     <Scene key="Inbox" component={Inbox} title="Request Inbox" ></Scene>
                     <Scene key="Outbox" component={Outbox} title="Outgoing Requests" ></Scene>
                     <Scene key="UserSettings" component={UserSettings} title="User Settings" ></Scene>
+                    <Scene key="ConfirmRequestSent" component={ConfirmRequestSent} title="Confirm Request Sent" ></Scene>
                 </Scene>
                 <Scene key="calendar">
                     <Scene key="Calendar" component={Calendar} title="My Calendar" targetSelf={true} initial></Scene>
