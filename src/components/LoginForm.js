@@ -27,7 +27,7 @@ from 'react-native-dotenv'
 
 class LoginForm extends Component {
   state = {
-    email: "ugob1985@gmail.com",
+    email: "mikeliu8492@gmail.com",
     password: "123456",
     error: "",
     loading: false
