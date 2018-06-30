@@ -15,7 +15,7 @@ const Confirm = ({children, visible, onAccept, onDecline}) => {
         >
             <View style={containerStyle}>
                 <CardSection style={cardSectionStyle}>
-                    <Text style={textStyle}>
+                    <Text style={[textStyle]}>
                         {children}
                     </Text>
                 </CardSection>

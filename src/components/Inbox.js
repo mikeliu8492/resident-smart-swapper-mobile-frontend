@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {Text, View, FlatList} from 'react-native';
 
 // Redux Services
 import {connect} from 'react-redux';
@@ -12,38 +12,27 @@ import { CardSection } from './common';
 import moment from 'moment-timezone'
 import {Actions} from 'react-native-router-flux'
 
+//Swap Details
+import SwapOverview from './SwapOverview'
+
+const baseUrl = "https://resident-smart-swapper.herokuapp.com/"
+
 class Inbox extends React.Component{
 
     state = {
         programName: "",
         specialty: "",
-        shiftList: []
+        requestList: []
     }
+
     componentWillMount() {
         const currentLoggedUser = this.props.currentLoggedUser.userInfo
 
-        //Get the user program too
-        axios.get(`https://resident-smart-swapper.herokuapp.com/program/${currentLoggedUser.program}`)
+        axios.get(`https://resident-smart-swapper.herokuapp.com/swap_request/by_user/${currentLoggedUser._id}?origin=0`)
         .then(response => {
-            const program = response.data.program
+            const requestList = response.data.swap_requests;
             this.setState({
-                programName: program.institution,
-                specialty: program.specialty
-            })
-
-            const userPayload = {
-                user: currentLoggedUser._id,
-                program: currentLoggedUser.program,
-                pgy: currentLoggedUser.year,
-                target_self: true 
-            }
-
-            return axios.post(`https://resident-smart-swapper.herokuapp.com/visualize_shifts`, userPayload)
-        })
-        .then(response => {
-            const shiftList = response.data.calendar_shifts;
-            this.setState({
-                shiftList: shiftList
+                requestList: requestList
             })
         })
         .catch(err => {
@@ -51,33 +40,102 @@ class Inbox extends React.Component{
         })
     }
 
-    renderShiftList() {
-        return this.state.shiftList.map(shift => 
-        {
-            const localStart = new Date(shift.start_shift)
-            const localEnd = new Date(shift.end_shift)
-
+    populateElementsOfChild (request) {
+        return new Promise((resolve, reject) => {
+            const formattedCreateTime = request.create_time
+        
+            tempFromShift = {}
+            tempToShift = {}
+            tempFromUser = {}
+            requestData = {}
             
-            let gmtDateTime = moment(shift.start_shift)
-            const formatStart = gmtDateTime.local().format('MM/DD/YY h:mm a');
+            axios.get(`${baseUrl}swap_request/${request._id}`)
+            .then(response => {
+                requestData = response.data.swap_request
+                const fromShiftByIdUrl = `${baseUrl}shift/${requestData.from_shift}`
 
-            gmtDateTime = moment(shift.end_shift)
-            const formatEnd = gmtDateTime.local().format('MM/DD/YY h:mm a');
+                return axios.get(fromShiftByIdUrl)
+            })
+            
+            .then(response => {
+                tempFromShift = response.data.shift
+                const toShiftByIdUrl = `${baseUrl}shift/${requestData.to_shift}`
+                return axios.get(toShiftByIdUrl)
+            })
+            .then(response => {
+                tempToShift = response.data.shift
 
+                const fromUserUrl = `${baseUrl}user/${tempFromShift.user}`
+                return axios.get(fromUserUrl)
+            })
+            .then(response => {
+                tempFromUser = response.data.user
+                const toUserUrl = `${baseUrl}user/${tempToShift.user}`
+                return axios.get(toUserUrl)
+            })
+            .then(response => {
+                resolve({
+                    toUserData: response.data.user,
+                    fromUserData: tempFromUser,
+                    toShiftData: tempToShift,
+                    fromShiftData: tempFromShift,
+                    createTime: formattedCreateTime
+                })
+            })
+            .catch(error => {
+                console.log(error.toString())
+                reject({
+                    toUserData: "",
+                    fromUserData: "",
+                    toShiftData: "",
+                    fromShiftData: "",
+                    createTime: ""
+                })
+            })
+        })
+    }
 
+    renderShiftList() {
+        
+        if(this.state.requestList.length === 0) {
             return(
-                <CardSection key= {shift._id}>
+                <CardSection>
                     <View style={{flex: 1}}>
-                        <Text>Start Shift:  {formatStart}</Text>
-                        <Text>End Shift:  {formatEnd}</Text>
+                        <Text>You have no reqeusts in this box</Text>
                     </View>
                 </CardSection>
             )
-
         }
+        console.log("THESE ARE MY THINGS!!")
+        console.log(this.state.requestList)
+        
+        /*
+        return this.state.requestList.map((request) => {
+            return <SwapOverview key={request._id} request={request}/>
+        })
+        */
 
-        )
+        return<FlatList 
+                data={this.state.requestList}
+                keyExtractor = {(item) => item._id} 
+                renderItem={this.renderItem}
+                ></FlatList>
+
+
     }
+    
+    timeFormatHelper(timeString) {
+        //console.log("TIMESTRING BEFORE CONVERSION:  " + timeString)
+        let gmtDateTime = moment(timeString)
+        return  gmtDateTime.tz("America/New_York").format('MM/DD/YY h:mm a')
+    }
+
+    renderItem({item, index}) {
+        return <SwapOverview request={item}/>
+        
+    }
+
+
 
     render() {
         const currentLoggedUser = this.props.currentLoggedUser.userInfo
@@ -86,13 +144,7 @@ class Inbox extends React.Component{
             <View style={{flex: 1}}>
                 <Text>This is your inbox!!!!</Text>
                 <Text>Welcome {currentLoggedUser.first_name} {currentLoggedUser.last_name}</Text>
-                <Text>ID:  {currentLoggedUser._id}</Text>
-                <Text>PGY:  {currentLoggedUser.year}</Text>
-                <Text>Institution:  {this.state.programName}</Text>
-                <Text>Specialty:  {this.state.specialty}</Text>
-                <View>
                     {this.renderShiftList()}
-                </View>
             </View>
         )
 
@@ -103,7 +155,6 @@ class Inbox extends React.Component{
 const mapStateToProps = (state, ownProps) => {
     return {
         currentLoggedUser: state.currentLoggedUser,
-        userIsPresent: state.currentLoggedUser !== null
     }
 };
   
